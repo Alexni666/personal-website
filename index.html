@@ -683,10 +683,10 @@ a{color:inherit;text-decoration:none}
   .scroll-hint{right:22px}
 }
 @media(max-width:760px) and (orientation:portrait){
-  body{min-height:980vh}
+  body{min-height:820vh}
   .stage video{
     object-fit:cover;
-    object-position:50% center;
+    object-position:50% 50%;
     transform:none;
     transform-origin:center center;
     background:#f6f5f2;
@@ -735,12 +735,12 @@ a{color:inherit;text-decoration:none}
     left:20px!important;
     right:20px!important;
     top:auto!important;
-    bottom:68px!important;
+    bottom:58px!important;
     width:auto!important;
-    max-height:58vh;
+    max-height:62vh;
     overflow-y:auto;
     padding:18px 18px 16px;
-    background:rgba(255,255,255,.96);
+    background:rgba(255,255,255,.985);
     box-shadow:inset 0 2px 0 var(--green);
     transform:translateY(24px);
     pointer-events:auto;
@@ -790,16 +790,19 @@ a{color:inherit;text-decoration:none}
     letter-spacing:.12em;
   }
   .timeline{
-    bottom:70px!important;
-    max-height:54vh;
+    bottom:58px!important;
+    max-height:60vh;
   }
   .timeline-list{
-    gap:10px;
+    display:grid;
+    grid-auto-flow:column;
+    grid-auto-columns:minmax(245px,74vw);
+    gap:12px;
     padding:8px 0 14px;
     scroll-snap-type:x mandatory;
   }
   .tl-row{
-    flex-basis:72vw;
+    flex-basis:auto;
     min-height:148px;
     grid-template-rows:34px 1fr;
     gap:14px;
@@ -833,8 +836,16 @@ a{color:inherit;text-decoration:none}
     font-size:19px;
     line-height:1.18;
   }
+  .work-card p{
+    display:block;
+    margin-top:7px;
+    color:#686868;
+    font-size:12px;
+    font-weight:300;
+    line-height:1.55;
+  }
   .showcase-shell{
-    max-height:44vh;
+    max-height:48vh;
     padding:10px 10px 8px;
     background:rgba(255,255,255,.96);
   }
@@ -843,7 +854,7 @@ a{color:inherit;text-decoration:none}
     flex-direction:column;
     overflow-x:hidden;
     overflow-y:auto;
-    max-height:38vh;
+    max-height:42vh;
     gap:12px;
     padding-bottom:10px;
     scroll-snap-type:none;
@@ -853,7 +864,7 @@ a{color:inherit;text-decoration:none}
   .showcase-item,
   .showcase-item.primary{
     display:grid;
-    grid-template-columns:96px 1fr;
+    grid-template-columns:104px 1fr;
     gap:12px;
     align-items:start;
     width:100%;
@@ -869,8 +880,8 @@ a{color:inherit;text-decoration:none}
   .showcase-frame{
     aspect-ratio:auto;
     min-height:0;
-    width:96px;
-    height:152px;
+    width:104px;
+    height:164px;
   }
   .showcase-item.primary .showcase-frame{
     aspect-ratio:9/16;
@@ -886,8 +897,8 @@ a{color:inherit;text-decoration:none}
     inset:auto;
     display:flex;
     grid-template-columns:repeat(4,100%);
-    width:96px;
-    height:152px;
+    width:104px;
+    height:164px;
     padding:0;
     max-height:none;
     overflow-x:auto;
@@ -895,9 +906,9 @@ a{color:inherit;text-decoration:none}
     scroll-snap-type:x mandatory;
   }
   .screenshot-grid img{
-    flex:0 0 96px;
-    width:96px;
-    height:152px;
+    flex:0 0 104px;
+    width:104px;
+    height:164px;
     object-fit:contain;
     background:#f4f4f1;
     scroll-snap-align:start;
@@ -909,8 +920,8 @@ a{color:inherit;text-decoration:none}
   .showcase-meta h3{font-size:17px}
   .showcase-meta p{display:block;font-size:11px}
   .contact{
-    bottom:70px!important;
-    max-height:58vh;
+    bottom:58px!important;
+    max-height:62vh;
   }
   .contact-copy span{
     display:inline;
@@ -1147,18 +1158,35 @@ function showShowcasePanel() {
 
 function buildTimeline() {
   let lastVideoTime = -1;
+  let mobileFrameLocked = false;
+  const mobile = isPortraitMobile();
+  const delays = mobile ? {
+    heroHold: 1.35,
+    beforeAbout: 0.25,
+    beforeTimeline: 0.3,
+    beforeFocus: 0.3,
+    beforeShowcase: 0.28,
+    beforeContact: 0.25
+  } : chapterDelay;
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: document.body,
       start: 'top top',
       end: 'bottom bottom',
-      scrub: isPortraitMobile() ? 1.45 : 0.75,
+      scrub: mobile ? 0.65 : 0.75,
       onUpdate: (self) => {
         progressBar.style.width = `${self.progress * 100}%`;
         document.getElementById('scrollHint').style.opacity = self.progress > 0.08 ? 0 : 1;
         if (video.duration && video.readyState >= 1) {
+          if (mobile) {
+            if (!mobileFrameLocked) {
+              video.currentTime = 0.001;
+              mobileFrameLocked = true;
+            }
+            return;
+          }
           const nextTime = self.progress * video.duration;
-          if (!isPortraitMobile() || Math.abs(nextTime - lastVideoTime) > 0.045) {
+          if (Math.abs(nextTime - lastVideoTime) > 0.045) {
             video.currentTime = nextTime;
             lastVideoTime = nextTime;
           }
@@ -1169,20 +1197,21 @@ function buildTimeline() {
 
   tl.to(heroKicker, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' })
     .to(heroWords, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '<')
-    .to([heroKicker, ...heroWords], { opacity: 1, duration: chapterDelay.heroHold })
+    .to([heroKicker, ...heroWords], { opacity: 1, duration: delays.heroHold })
     .to([heroKicker, ...heroWords], { opacity: 0, y: -32, duration: 0.46, ease: 'power2.in' });
 
-  tl.to({}, { duration: chapterDelay.beforeAbout - 1.51 });
-  showPanel('#aboutPanel', 0.42, 3.3, 0.42, -26).forEach(t => tl.add(t));
-  tl.to({}, { duration: chapterDelay.beforeTimeline });
-  showPanel('#timelinePanel', 0.42, 2.15, 0.42, 30).forEach(t => tl.add(t));
-  tl.to({}, { duration: chapterDelay.beforeFocus });
+  tl.to({}, { duration: Math.max(0.1, delays.beforeAbout - 1.51) });
+  showPanel('#aboutPanel', 0.42, mobile ? 3.4 : 3.3, 0.42, -26).forEach(t => tl.add(t));
+  tl.to({}, { duration: delays.beforeTimeline });
+  showPanel('#timelinePanel', 0.42, mobile ? 3.0 : 2.15, 0.42, 30).forEach(t => tl.add(t));
+  tl.to({}, { duration: delays.beforeFocus });
   tl.add(showWorkPanel());
-  tl.to({}, { duration: chapterDelay.beforeShowcase });
+  tl.to({}, { duration: delays.beforeShowcase });
   tl.add(showShowcasePanel());
-  tl.to({}, { duration: chapterDelay.beforeContact });
+  tl.to({}, { duration: delays.beforeContact });
   gsap.set('#contactPanel', { x: -24, y: 34, opacity: 0 });
-  tl.to('#contactPanel', { opacity: 1, x: 0, y: 0, duration: 0.35, ease: 'power2.out' });
+  tl.to('#contactPanel', { opacity: 1, x: 0, y: 0, duration: 0.35, ease: 'power2.out' })
+    .to('#contactPanel', { opacity: 1, x: 0, y: 0, duration: mobile ? 3.2 : 1.6, ease: 'none' });
 }
 
 function initVideo() {
@@ -1234,7 +1263,7 @@ if (timelineList) {
   window.addEventListener('resize', updateTimelineFocus);
   function animateTimelineRail() {
     const max = timelineList.scrollWidth - timelineList.clientWidth;
-    if (!timelinePointerActive && max > 0) {
+    if (!isPortraitMobile() && !timelinePointerActive && max > 0) {
       timelineAutoOffset = timelineAutoOffset >= max - 1 ? 0 : timelineAutoOffset + 1.4;
       timelineList.scrollLeft = timelineAutoOffset;
       updateTimelineFocus();
@@ -1267,7 +1296,7 @@ if (showcaseRail) {
   function animateShowcaseRail() {
     const mobile = isPortraitMobile();
     const max = mobile ? showcaseRail.scrollHeight - showcaseRail.clientHeight : showcaseRail.scrollWidth - showcaseRail.clientWidth;
-    if (!showcasePointerActive && max > 0) {
+    if (!mobile && !showcasePointerActive && max > 0) {
       showcaseAutoOffset = showcaseAutoOffset >= max - 1 ? 0 : showcaseAutoOffset + (mobile ? 0.42 : 0.72);
       if (mobile) {
         showcaseRail.scrollTop = showcaseAutoOffset;
