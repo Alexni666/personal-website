@@ -686,7 +686,10 @@ a{color:inherit;text-decoration:none}
   body{min-height:980vh}
   .stage video{
     object-fit:cover;
-    object-position:42% 50%;
+    object-position:50% center;
+    transform:none;
+    transform-origin:center center;
+    background:#f6f5f2;
   }
   .nav{
     padding:18px 20px;
@@ -702,22 +705,27 @@ a{color:inherit;text-decoration:none}
     letter-spacing:.16em;
   }
   .hero-word{
-    font-size:clamp(32px,11.4vw,48px);
-    line-height:.88;
-    letter-spacing:-.075em;
+    font-size:clamp(22px,6.2vw,26px);
+    line-height:.96;
+    letter-spacing:-.055em;
+    padding:0 7px 2px;
+    background:rgba(255,255,255,.82);
   }
   .hero-word:first-child{
     left:20px;
-    bottom:168px;
+    top:112px;
+    bottom:auto;
   }
   .hero-word:last-child{
     left:20px;
     right:auto;
-    bottom:82px;
+    top:178px;
+    bottom:auto;
   }
   .hero-kicker{
     left:20px;
-    bottom:34px;
+    top:244px;
+    bottom:auto;
     width:calc(100vw - 40px);
     font-size:9px;
     line-height:1.5;
@@ -727,9 +735,9 @@ a{color:inherit;text-decoration:none}
     left:20px!important;
     right:20px!important;
     top:auto!important;
-    bottom:78px!important;
+    bottom:68px!important;
     width:auto!important;
-    max-height:48vh;
+    max-height:58vh;
     overflow-y:auto;
     padding:18px 18px 16px;
     background:rgba(255,255,255,.96);
@@ -750,21 +758,21 @@ a{color:inherit;text-decoration:none}
   .works-head h2,
   .showcase-head h2,
   .contact h2{
-    font-size:clamp(32px,10.5vw,46px);
-    line-height:1.12;
+    font-size:clamp(30px,9.8vw,42px);
+    line-height:1.18;
     letter-spacing:-.065em;
     margin-bottom:14px;
   }
   .statement p,
   .contact p{
     max-width:none;
-    font-size:13px;
-    line-height:1.72;
+    font-size:12.5px;
+    line-height:1.68;
   }
   .work-grid,
   .showcase-shell,
   .contact-links{
-    max-height:28vh;
+    max-height:none;
     overflow-y:auto;
     -webkit-overflow-scrolling:touch;
   }
@@ -782,8 +790,8 @@ a{color:inherit;text-decoration:none}
     letter-spacing:.12em;
   }
   .timeline{
-    bottom:84px!important;
-    max-height:48vh;
+    bottom:70px!important;
+    max-height:54vh;
   }
   .timeline-list{
     gap:10px;
@@ -826,26 +834,47 @@ a{color:inherit;text-decoration:none}
     line-height:1.18;
   }
   .showcase-shell{
-    max-height:32vh;
-    padding:10px;
+    max-height:44vh;
+    padding:10px 10px 8px;
     background:rgba(255,255,255,.96);
   }
   .showcase-rail{
-    gap:10px;
+    display:flex;
+    flex-direction:column;
+    overflow-x:hidden;
+    overflow-y:auto;
+    max-height:38vh;
+    gap:12px;
     padding-bottom:10px;
-    scroll-snap-type:x mandatory;
+    scroll-snap-type:none;
+    -webkit-mask-image:none;
+    mask-image:none;
   }
   .showcase-item,
   .showcase-item.primary{
-    flex-basis:78vw;
-    scroll-snap-align:start;
+    display:grid;
+    grid-template-columns:96px 1fr;
+    gap:12px;
+    align-items:start;
+    width:100%;
+    margin-bottom:16px;
+    padding-bottom:16px;
+    border-bottom:1px solid var(--faint);
+    flex:0 0 auto;
+    scroll-snap-align:none;
+  }
+  .showcase-item:nth-child(3){
+    display:none;
   }
   .showcase-frame{
-    aspect-ratio:3/4;
+    aspect-ratio:auto;
+    min-height:0;
+    width:96px;
+    height:152px;
   }
   .showcase-item.primary .showcase-frame{
     aspect-ratio:9/16;
-    max-height:34vh;
+    max-height:none;
   }
   .showcase-frame video,
   .showcase-frame img{
@@ -853,23 +882,35 @@ a{color:inherit;text-decoration:none}
     background:#fff;
   }
   .screenshot-grid{
-    grid-template-columns:repeat(4,86%);
+    position:relative;
+    inset:auto;
+    display:flex;
+    grid-template-columns:repeat(4,100%);
+    width:96px;
+    height:152px;
+    padding:0;
+    max-height:none;
     overflow-x:auto;
     overflow-y:hidden;
     scroll-snap-type:x mandatory;
   }
   .screenshot-grid img{
+    flex:0 0 96px;
+    width:96px;
+    height:152px;
+    object-fit:contain;
+    background:#f4f4f1;
     scroll-snap-align:start;
   }
   .showcase-meta{
-    grid-template-columns:52px 1fr;
-    gap:10px;
+    display:block;
+    padding-top:4px;
   }
   .showcase-meta h3{font-size:17px}
   .showcase-meta p{display:block;font-size:11px}
   .contact{
-    bottom:86px!important;
-    max-height:54vh;
+    bottom:70px!important;
+    max-height:58vh;
   }
   .contact-copy span{
     display:inline;
@@ -1041,6 +1082,7 @@ const panels = ['#aboutPanel', '#timelinePanel', '#workPanel', '#showcasePanel',
 const timelineList = document.querySelector('#timelinePanel .timeline-list');
 const timelineCards = timelineList ? gsap.utils.toArray('#timelinePanel .tl-row') : [];
 const showcaseRail = document.querySelector('#showcasePanel .showcase-rail');
+const isPortraitMobile = () => window.matchMedia('(max-width:760px) and (orientation:portrait)').matches;
 const chapterDelay = {
   heroHold: 2.1,
   beforeAbout: 4.6,
@@ -1104,17 +1146,22 @@ function showShowcasePanel() {
 }
 
 function buildTimeline() {
+  let lastVideoTime = -1;
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: document.body,
       start: 'top top',
       end: 'bottom bottom',
-      scrub: 0.75,
+      scrub: isPortraitMobile() ? 1.45 : 0.75,
       onUpdate: (self) => {
         progressBar.style.width = `${self.progress * 100}%`;
         document.getElementById('scrollHint').style.opacity = self.progress > 0.08 ? 0 : 1;
-        if (video.duration && video.readyState >= 2) {
-          video.currentTime = self.progress * video.duration;
+        if (video.duration && video.readyState >= 1) {
+          const nextTime = self.progress * video.duration;
+          if (!isPortraitMobile() || Math.abs(nextTime - lastVideoTime) > 0.045) {
+            video.currentTime = nextTime;
+            lastVideoTime = nextTime;
+          }
         }
       }
     }
@@ -1201,22 +1248,32 @@ if (showcaseRail) {
   let showcasePointerActive = false;
   let showcaseAutoOffset = showcaseRail.scrollLeft;
   showcaseRail.addEventListener('scroll', () => {
-    if (showcasePointerActive) showcaseAutoOffset = showcaseRail.scrollLeft;
+    if (showcasePointerActive) showcaseAutoOffset = isPortraitMobile() ? showcaseRail.scrollTop : showcaseRail.scrollLeft;
   }, { passive: true });
   showcaseRail.addEventListener('pointerenter', () => { showcasePointerActive = true; });
   showcaseRail.addEventListener('pointerleave', () => { showcasePointerActive = false; });
   showcaseRail.addEventListener('wheel', (event) => {
     if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
       event.preventDefault();
-      showcaseRail.scrollLeft += event.deltaY;
-      showcaseAutoOffset = showcaseRail.scrollLeft;
+      if (isPortraitMobile()) {
+        showcaseRail.scrollTop += event.deltaY;
+        showcaseAutoOffset = showcaseRail.scrollTop;
+      } else {
+        showcaseRail.scrollLeft += event.deltaY;
+        showcaseAutoOffset = showcaseRail.scrollLeft;
+      }
     }
   }, { passive: false });
   function animateShowcaseRail() {
-    const max = showcaseRail.scrollWidth - showcaseRail.clientWidth;
+    const mobile = isPortraitMobile();
+    const max = mobile ? showcaseRail.scrollHeight - showcaseRail.clientHeight : showcaseRail.scrollWidth - showcaseRail.clientWidth;
     if (!showcasePointerActive && max > 0) {
-      showcaseAutoOffset = showcaseAutoOffset >= max - 1 ? 0 : showcaseAutoOffset + 0.72;
-      showcaseRail.scrollLeft = showcaseAutoOffset;
+      showcaseAutoOffset = showcaseAutoOffset >= max - 1 ? 0 : showcaseAutoOffset + (mobile ? 0.42 : 0.72);
+      if (mobile) {
+        showcaseRail.scrollTop = showcaseAutoOffset;
+      } else {
+        showcaseRail.scrollLeft = showcaseAutoOffset;
+      }
     }
     requestAnimationFrame(animateShowcaseRail);
   }
