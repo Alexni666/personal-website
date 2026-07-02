@@ -1098,7 +1098,7 @@ const chapterDelay = {
   heroHold: 2.1,
   beforeAbout: 5.05,
   beforeTimeline: 7.0,
-  beforeFocus: 6.8,
+  beforeFocus: 6.1,
   beforeShowcase: 0.55,
   beforeContact: 0.45
 };
@@ -1203,7 +1203,7 @@ function buildTimeline() {
   tl.to({}, { duration: Math.max(0.1, delays.beforeAbout - 1.51) });
   showPanel('#aboutPanel', 0.42, mobile ? 3.4 : 3.85, 0.42, -26).forEach(t => tl.add(t));
   tl.to({}, { duration: delays.beforeTimeline });
-  showPanel('#timelinePanel', 0.42, mobile ? 3.0 : 2.15, 0.42, 30).forEach(t => tl.add(t));
+  showPanel('#timelinePanel', 0.42, mobile ? 3.0 : 2.85, 0.42, 30).forEach(t => tl.add(t));
   tl.to({}, { duration: delays.beforeFocus });
   tl.add(showWorkPanel());
   tl.to({}, { duration: delays.beforeShowcase });
